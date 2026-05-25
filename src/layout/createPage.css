@@ -1,0 +1,24 @@
+.createPage {
+
+    display: flex;
+    justify-content: center;
+
+
+}
+
+.create-project-input {
+
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    color: black;
+    border: 10px solid black;
+    width: 500px;
+
+    /* margin: 50px;
+
+    padding: 50px;
+    width: 300px; */
+    background-color: grey;
+}
