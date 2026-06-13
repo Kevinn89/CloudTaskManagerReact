@@ -19,16 +19,7 @@ export const apiClient = axios.create({
     headers: {
         "Content-Type": "application/json",
     },
-});
-
-
-apiClient.interceptors.request.use((config) => {
-    const token = localStorage.getItem("token");
-
-    if (token) {
-        config.headers.Authorization = `Bearer ${token}`;
-    }
-    return config;
+    withCredentials: true
 });
 
 apiClient.interceptors.response.use(
@@ -50,34 +41,15 @@ apiClient.interceptors.response.use(
             const userJson = localStorage.getItem("user");
             const user: UserResponse | null = userJson ? JSON.parse(userJson) : null
 
-            if (!user?.refreshToken) {
+            if (!user) {
                 localStorage.removeItem("user");
                 return Promise.reject(error)
             }
-            console.log(`email: ${user.email}`)
-            console.log(`refreshToken: ${user.refreshToken}`)
 
             try {
-                const refreshResponse = await axios.post<UserResponse>(
-                    `${import.meta.env.VITE_API_BASE_URL}/api/auth/refresh`,
-                    {
-                        refreshToken: user.refreshToken,
-                        email: user.email
-                    }
-                );
 
-                const updatedUser: UserResponse = {
-                    ...user,
-                    token: refreshResponse.data.token,
-                    tokenExpiration: refreshResponse.data.tokenExpiration,
-                    refreshToken: refreshResponse.data.refreshToken,
-                    refreshTokenExpiration: refreshResponse.data.refreshTokenExpiration
-                };
-
-                localStorage.setItem("user", JSON.stringify(updatedUser))
-                localStorage.setItem("token", updatedUser.token);
-                originalRequest.headers.Authorization = `Bearer ${updatedUser.token}`;
-
+                const response = await apiClient.post("/api/auth/refresh").catch(error => console.log(error));
+                console.log(response);
                 return apiClient(originalRequest);
 
             }
@@ -86,8 +58,6 @@ apiClient.interceptors.response.use(
                 return Promise.reject(refreshError)
 
             }
-
-
         }
         return Promise.reject(error);
 

@@ -1,75 +1,117 @@
 import React, { useEffect, useState, type ChangeEvent } from 'react';
-import { deleteProject, updateProject } from '../services/ProjectService';
+import { deleteProject, getProject, updateProject } from '../services/ProjectService';
 
 
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 
 import TaskList from '../components/task/TaskList';
+import { useAuth } from '../context/AuthContext';
 import { useProjects } from "../context/ProjectContext";
+import { AppPaths } from '../routes/Route';
 import { getProjectTasks, type TaskResponse } from '../services/TaskService';
 
-
+type ProjectForm = {
+    id: number;
+    name: string;
+    description: string;
+    task_count: number;
+    projectStatus: string;
+    priorityStatus: string;
+    updated_date: string;
+    creation_date: string;
+    tasks: TaskResponse[];
+};
 
 function EditProjectsPage() {
 
-    const { selectedProject, updateProjectInState, removeProjectFromState } = useProjects();
+    const { projectId } = useParams()
+    const { user } = useAuth()
+    const canDELETE = user?.privileges.includes("DELETE");
+    const canCreate = user?.privileges.includes("CREATE");
+    const editable = false
     const navigate = useNavigate()
 
-
-    if (!selectedProject) {
-
-        return <p>No project selected.</p>;
-    }
+    if (!user)
+        return "No User"
 
 
+    const { selectedProject, updateProjectInState, removeProjectFromState, setSelectedProject } = useProjects();
 
-    const { id, name, description, taskCount, status, priority, createdAt, updatedAt, tasks } = selectedProject
     const [taskList, setTaskList] = useState<TaskResponse[]>([])
-    const [form, setForm] = useState({
-        id: id,
-        name: name,
-        description: description,
-        task_count: taskCount,
-        projectStatus: status,
-        priorityStatus: priority,
-        updated_date: updatedAt,
-        creation_date: createdAt,
-        tasks: tasks
-    })
+
+    const [form, setForm] = useState<ProjectForm>({
+        id: 0,
+        name: "",
+        description: "",
+        task_count: 0,
+        projectStatus: "",
+        priorityStatus: "",
+        updated_date: "",
+        creation_date: "",
+        tasks: [],
+    });
 
 
     useEffect(() => {
-        setTaskList(selectedProject.tasks);
-    }, [selectedProject.tasks])
 
-    useEffect(() => {
+        console.log(projectId)
+        async function getMyProject() {
 
+
+            const project =
+                selectedProject !== null && selectedProject.id === Number(projectId)
+                    ? selectedProject
+                    : await getProject(Number(projectId));
+
+            const { id, name, description, taskCount, status, priority, createdAt, updatedAt, tasks } = project
+
+            setForm({
+                id: id,
+                name: name,
+                description: description,
+                task_count: taskCount,
+                projectStatus: status,
+                priorityStatus: priority,
+                updated_date: updatedAt,
+                creation_date: createdAt,
+                tasks: tasks
+            })
+
+            setSelectedProject(project);
+        }
         async function getMyTask() {
-            const list = await getProjectTasks(id).catch(error => console.log(error))
-
+            const list = await getProjectTasks(Number(projectId)).catch(error => console.log(error))
+            console.log(list)
             if (!list)
                 return
             setTaskList(list);
         }
-        getMyTask();
 
-    }, [id])
+        getMyTask();
+        getMyProject();
+
+    }, [projectId, selectedProject])
 
     async function removeProject() {
 
+
+        //  console.log(id)
+
         await deleteProject(
-            id
+            Number(projectId)
         ).catch(error => console.log(error))
 
-        removeProjectFromState(id);
-        navigate("/projects")
+        removeProjectFromState(Number(projectId));
+        navigate(AppPaths.projects())
 
     }
 
     async function onSubmit(event: React.FormEvent<HTMLFormElement>) {
         event.preventDefault();
 
-        await updateProject({
+        console.log(form)
+
+        const updatedProject = await updateProject({
             projectId: form.id,
             name: form.name,
             description: form.description,
@@ -77,19 +119,15 @@ function EditProjectsPage() {
             priorityStatus: form.priorityStatus
         }).catch(error => console.log(error))
 
+        console.log(updatedProject)
 
-        updateProjectInState({
-            id: form.id,
-            name: form.name,
-            description: form.description,
-            taskCount: form.task_count,
-            createdAt: form.creation_date,
-            updatedAt: form.updated_date,
-            status: form.projectStatus,
-            priority: form.priorityStatus,
-            tasks: form.tasks
-        })
-        navigate("/projects")
+        if (!updatedProject) {
+            throw new Error(`No Update for Project ${form.name}`)
+        }
+
+        updateProjectInState(updatedProject);
+
+        navigate(AppPaths.projects())
     }
 
     function handleChange(event: ChangeEvent<HTMLInputElement>): void {
@@ -106,8 +144,7 @@ function EditProjectsPage() {
     }
     function addTask() {
 
-        navigate(`/projects/${id}/create-task`, {
-        });
+        navigate(AppPaths.createTask(Number(projectId)));
     }
 
     function handleChangeTextArea(event: ChangeEvent<HTMLTextAreaElement>): void {
@@ -137,7 +174,7 @@ function EditProjectsPage() {
 
     return (
         <div>
-            <p>Project ID number: {id}</p>
+            <p>Project ID number: {Number(projectId)}</p>
 
             <form onSubmit={onSubmit}>
                 <div>
@@ -146,7 +183,7 @@ function EditProjectsPage() {
                         <input
                             type="text"
                             name="name"
-                            value={name}
+                            value={form.name}
                             onChange={handleChange}
                         />
                     </label>
@@ -157,7 +194,7 @@ function EditProjectsPage() {
                         Project Description Change:
                         <textarea
                             name="description"
-                            value={description}
+                            value={form.description}
                             onChange={handleChangeTextArea}
                             maxLength={500}
                             rows={10}
@@ -197,26 +234,31 @@ function EditProjectsPage() {
                             <option value="">Select Project status</option>
                             <option value="ACTIVE">ACTIVE</option>
                             <option value="COMPLETED">COMPLETED</option>
-                            <option value="DELETED">CLOSED</option>
-                            <option value="ARCHIVED">ARCHIVED</option>
                             <option value="NOT_ACTIVE">NOT_ACTIVE</option>
                         </select>
                     </label>
                 </div>
 
                 <button type="submit">Update</button>
-                <button type="button" style={{ margin: "20px" }} onClick={removeProject}>
-                    Delete
-                </button>
-                <button type="button" style={{ margin: "20px" }} onClick={() => navigate("/projects")}>
+                {
+
+                    canDELETE ? <button type="button" style={{ margin: "20px" }} onClick={removeProject}>
+                        Delete
+                    </button> : <></>
+
+                }
+                {
+                    canCreate ? <button type="button" onClick={addTask}>
+                        Add Task
+                    </button> : <></>
+                }
+                <button type="button" style={{ margin: "20px" }} onClick={() => navigate(AppPaths.projects())}>
                     My Projects
                 </button>
             </form>
-            <button type="button" onClick={addTask}>
-                Add Task
-            </button>
 
-            <div style={{ display: 'flex', justifyContent: 'center' }}><TaskList tasks={taskList} /></div>
+
+            <div style={{ display: 'flex', justifyContent: 'center' }}><TaskList tasks={taskList} editable={editable} /></div>
 
         </div>
     )

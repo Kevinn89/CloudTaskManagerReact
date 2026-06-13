@@ -8,11 +8,11 @@ export type CreateProjectRequest = {
 };
 
 export type UpdateProjectRequest = {
-    projectId: Number;
-    name: string;
-    description: string;
-    projectStatus: string;
-    priorityStatus: string;
+    projectId: number | null;
+    name: string | null;
+    description: string | null;
+    projectStatus: string | null;
+    priorityStatus: string | null;
 
 };
 
@@ -46,7 +46,7 @@ export async function completeProject(projectId: Number): Promise<ProjectRespons
     return (await apiClient.put(`/api/project/${projectId}/complete`)).data;
 }
 
-export async function deleteProject(projectId: Number): Promise<ProjectResponse> {
+export async function deleteProject(projectId: number): Promise<ProjectResponse> {
     return (await apiClient.delete(`/api/project/${projectId}`)).data;
 }
 
@@ -55,5 +55,12 @@ export async function getProject(projectId: Number): Promise<ProjectResponse> {
 }
 
 export async function getUserProjects(): Promise<ProjectResponse[]> {
-    return (await apiClient.get<ProjectResponse[]>("/api/project/user-projects")).data;
+    return (await apiClient.get("/api/project/user-projects")).data;
+}
+
+export function getSelectProjectId() {
+
+    const idx = Number(localStorage.getItem("project_id"));
+
+    return idx;
 }

@@ -5,6 +5,8 @@ import { useNavigate } from "react-router-dom";
 
 import { useProjects } from "../context/ProjectContext";
 import { deleteTask, updateTask } from '../services/TaskService';
+import { useAuth } from '../context/AuthContext';
+import { AppPaths } from '../routes/Route';
 
 
 
@@ -12,8 +14,13 @@ function EditTaskPage() {
 
 
     const { removeTaskFromSelectedProject, selectedTask } = useProjects();
+    const { user } = useAuth()
+
+    const canCreate = user?.privileges.includes("CREATE") === true;
 
 
+    if (!user)
+        throw new Error("No User")
     if (!selectedTask)
         return <>No task</>
 
@@ -22,6 +29,25 @@ function EditTaskPage() {
     const task = selectedTask;
 
     const navigate = useNavigate();
+
+
+    function getButtons() {
+        const buttons = []
+        const canUpdate = user?.privileges.includes("UPDATE") === true;
+        const canDELETE = user?.privileges.includes("DELETE") === true;
+
+        if (canDELETE)
+            buttons.push(
+                <button type="submit">Update</button>,
+                <button type="button" style={{ margin: "20px" }} onClick={removeTask}>
+                    Delete
+                </button>)
+
+        if (canUpdate)
+            buttons.push(<button type="submit">Update</button>)
+
+        return buttons;
+    }
 
     const [form, setForm] = useState({
         id: id,
@@ -55,7 +81,7 @@ function EditTaskPage() {
             dueDate: form.dueDate
         }).catch(error => console.log(error))
 
-        navigate(`/projects/${projectId}/edit`);
+        navigate(AppPaths.editProject(projectId));
     }
 
 
@@ -147,11 +173,12 @@ function EditTaskPage() {
                             </select>
                         </label>
                     </div></>
+
                 <button type="submit">Update</button>
                 <button type="button" style={{ margin: "20px" }} onClick={removeTask}>
                     Delete
                 </button>
-                <button type="button" style={{ margin: "20px" }} onClick={() => navigate(`/projects/${projectId}/edit`)}>
+                <button type="button" style={{ margin: "20px" }} onClick={() => navigate(AppPaths.editProject(projectId))}>
                     Back to Project
                 </button>
             </form>

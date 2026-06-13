@@ -1,30 +1,41 @@
+import { useEffect, useState } from "react";
+import TaskList from "../components/task/TaskList";
+import { useProjects } from "../context/ProjectContext";
+import { type TaskResponse } from "../services/TaskService";
 
 
 function ProjectTasksPage() {
 
-  //const [task, setTask] = useState<TaskResponse[]>([])
+  const { selectedProject } = useProjects();
+  const [taskList, setTaskList] = useState<TaskResponse[]>([])
 
-  //   useEffect(() => {
+  const editable = true
 
-  //     async function loadProjects() {
+  if (!selectedProject) {
+    throw new Error("No Selected Project");
+  }
 
-  //       const response = await getUserProjects();
+  // const { id } = selectedProject;
 
-  //       setTask(response);
+  useEffect(() => {
 
+    // async function getMyTask() {
 
-  //       console.log(response)
+    //   const tasks = getTask(id).catch(error => console.log(error))
 
-  //     })
+    // }
 
-  // }
+    setTaskList(selectedProject.tasks)
+
+  })
+
 
   return (
     <main className="page project-tasks-page">
       <section>
         <h1>Project tasks</h1>
         <p>Review the tasks assigned to this project.</p>
-        {/* <TaskList /> */}
+        <TaskList tasks={taskList} editable={editable} />
       </section>
     </main>
   );

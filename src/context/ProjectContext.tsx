@@ -1,24 +1,28 @@
-import { createContext, type ReactNode, useContext, useState } from "react";
+import { createContext, type ReactNode, useContext, useReducer } from "react";
 import type { ProjectResponse } from "../services/ProjectService";
 import type { TaskResponse } from "../services/TaskService";
+import { initialProjectState, projectReducer } from "./ProjectReducer";
 
 type ProjectContextType = {
     projects: ProjectResponse[];
     selectedProject: ProjectResponse | null;
     hasLoadedProjects: boolean;
-    setProjects: React.Dispatch<React.SetStateAction<ProjectResponse[]>>;
-    setSelectedProject: React.Dispatch<React.SetStateAction<ProjectResponse | null>>;
-    setHasLoadedProjects: React.Dispatch<React.SetStateAction<boolean>>;
+    selectedTask: TaskResponse | null;
+
+    setProjects: (projects: ProjectResponse[]) => void
+    setSelectedProject: (selectedProject: ProjectResponse) => void
+    setHasLoadedProjects: (hasLoadedProjects: boolean) => void
+    setSelectedTask: (task: TaskResponse | null) => void;
     addProject: (project: ProjectResponse) => void;
     updateProjectInState: (updatedProject: ProjectResponse) => void;
     removeProjectFromState: (projectId: number) => void;
     clearProjects: () => void;
+
     addTaskToSelectedProject: (task: TaskResponse) => void;
     removeTaskFromSelectedProject: (task: TaskResponse) => void;
-    selectedTask: TaskResponse | null;
-    setSelectedTask: React.Dispatch<React.SetStateAction<TaskResponse | null>>;
     updateTaskInSelectedProject: (updatedTask: TaskResponse) => void;
 };
+
 
 const ProjectContext = createContext<ProjectContextType | undefined>(undefined);
 
@@ -27,136 +31,90 @@ type ProjectProviderProps = {
 };
 
 export default function ProjectProvider({ children }: ProjectProviderProps) {
-    const [projects, setProjects] = useState<ProjectResponse[]>([]);
-    const [selectedProject, setSelectedProject] = useState<ProjectResponse | null>(null);
-    const [hasLoadedProjects, setHasLoadedProjects] = useState(false);
-    const [selectedTask, setSelectedTask] = useState<TaskResponse | null>(null);
+    const [state, dispatch] = useReducer(projectReducer, initialProjectState);
 
-    function updateTaskInSelectedProject(updatedTask: TaskResponse) {
-        setSelectedProject((currentProject) => {
-            if (!currentProject) {
-                return currentProject;
-            }
+    function setProjects(projects: ProjectResponse[]) {
 
-            return {
-                ...currentProject,
-                tasks: currentProject.tasks.map((task) =>
-                    task.id === updatedTask.id ? updatedTask : task
-                ),
-            };
+        dispatch({ type: "SET_PROJECTS", payload: projects });
+
+    }
+
+    function setSelectedProject(project: ProjectResponse | null) {
+
+        dispatch({ type: "SET_SELECTED_PROJECT", payload: project });
+
+    }
+
+    function setHasLoadedProjects(hasLoadedProjects: boolean) {
+
+        dispatch({
+
+            type: "SET_HAS_LOADED_PROJECTS",
+
+            payload: hasLoadedProjects,
+
         });
 
-        setProjects((currentProjects) =>
-            currentProjects.map((project) =>
-                project.id === updatedTask.projectId
-                    ? {
-                        ...project,
-                        tasks: project.tasks.map((task) =>
-                            task.id === updatedTask.id ? updatedTask : task
-                        ),
-                    }
-                    : project
-            )
-        );
+    }
 
-        setSelectedTask(updatedTask);
+    function setSelectedTask(task: TaskResponse | null) {
+
+        dispatch({ type: "SET_SELECTED_TASK", payload: task });
+
     }
 
     function addProject(project: ProjectResponse) {
-        setProjects((currentProjects) => [...currentProjects, project]);
+
+        dispatch({ type: "ADD_PROJECT", payload: project });
+
     }
 
     function updateProjectInState(updatedProject: ProjectResponse) {
-        setProjects((currentProjects) =>
-            currentProjects.map((project) =>
-                project.id === updatedProject.id ? updatedProject : project
-            )
-        );
 
-        setSelectedProject((currentProject) =>
-            currentProject?.id === updatedProject.id ? updatedProject : currentProject
-        );
+        dispatch({ type: "UPDATE_PROJECT", payload: updatedProject });
+
     }
 
     function removeProjectFromState(projectId: number) {
-        setProjects((currentProjects) =>
-            currentProjects.filter((project) => project.id !== projectId)
-        );
 
-        setSelectedProject((currentProject) =>
-            currentProject?.id === projectId ? null : currentProject
-        );
-    }
+        dispatch({ type: "REMOVE_PROJECT", payload: projectId });
 
-    function addTaskToSelectedProject(task: TaskResponse) {
-        setSelectedProject((currentProject) => {
-            if (!currentProject) {
-                return currentProject;
-            }
-
-            return {
-                ...currentProject,
-                taskCount: currentProject.taskCount + 1,
-                tasks: [...currentProject.tasks, task],
-            };
-        });
-
-        setProjects((currentProjects) =>
-            currentProjects.map((project) =>
-                project.id === task.projectId
-                    ? {
-                        ...project,
-                        taskCount: project.taskCount + 1,
-                        tasks: [...project.tasks, task],
-                    }
-                    : project
-            )
-        );
-    }
-
-    function removeTaskFromSelectedProject(task: TaskResponse) {
-        setSelectedProject((currentProject) => {
-            if (!currentProject) {
-                return currentProject;
-            }
-
-            return {
-                ...currentProject,
-                taskCount: Math.max(currentProject.taskCount - 1, 0),
-                tasks: currentProject.tasks.filter(
-                    (currentTask) => currentTask.id !== task.id
-                ),
-            };
-        });
-
-        setProjects((currentProjects) =>
-            currentProjects.map((project) =>
-                project.id === task.projectId
-                    ? {
-                        ...project,
-                        taskCount: Math.max(project.taskCount - 1, 0),
-                        tasks: project.tasks.filter(
-                            (currentTask) => currentTask.id !== task.id
-                        ),
-                    }
-                    : project
-            )
-        );
     }
 
     function clearProjects() {
-        setProjects([]);
-        setSelectedProject(null);
-        setHasLoadedProjects(false);
+
+        dispatch({ type: "CLEAR_PROJECTS" });
+
+    }
+
+    function addTaskToSelectedProject(task: TaskResponse) {
+
+        dispatch({ type: "ADD_TASK_TO_SELECTED_PROJECT", payload: task });
+
+    }
+
+    function removeTaskFromSelectedProject(task: TaskResponse) {
+
+        dispatch({ type: "REMOVE_TASK_FROM_SELECTED_PROJECT", payload: task });
+
+    }
+
+    function updateTaskInSelectedProject(updatedTask: TaskResponse) {
+
+        dispatch({
+
+            type: "UPDATE_TASK_IN_SELECTED_PROJECT",
+
+            payload: updatedTask,
+
+        });
+
     }
 
     return (
         <ProjectContext.Provider
             value={{
-                projects,
-                selectedProject,
-                hasLoadedProjects,
-                selectedTask,
+                ...state,
                 setSelectedTask,
                 setProjects,
                 setSelectedProject,

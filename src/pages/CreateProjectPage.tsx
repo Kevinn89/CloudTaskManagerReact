@@ -2,8 +2,17 @@ import React, { useState, type ChangeEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
 import "../layout/createPage.css";
 import { createProject } from '../services/ProjectService';
+import { useAuth } from '../context/AuthContext';
+import { AppPaths } from '../routes/Route';
 
 function CreateProjectPage() {
+
+    const { user } = useAuth()
+
+    const canCreate = user?.privileges.includes("CREATE") === true;
+
+    if (!user)
+        throw new Error("No User")
 
     const navigate = useNavigate()
 
@@ -32,12 +41,14 @@ function CreateProjectPage() {
 
         event.preventDefault();
 
+        console.log("made it here")
+
         await createProject({
             name: form.name,
             description: form.description
         }).catch(error => console.log(error));
 
-        navigate("/projects")
+        navigate(AppPaths.projects())
     }
     return (
 
@@ -64,13 +75,20 @@ function CreateProjectPage() {
                                     resize: "none",
                                 }} />
                         </div>
-                        <div style={{ display: "flex", flexDirection: "column", gap: "10px", alignItems: "center" }}>
+                        {
+
+                            canCreate ? <div style={{ display: "flex", flexDirection: "column", gap: "10px", alignItems: "center" }}>
+                                <button style={{ width: "75px", marginBottom: "10px" }} type="submit">Create</button>
+                            </div> :
+                                <></>
+                        }
+                        {/* <div style={{ display: "flex", flexDirection: "column", gap: "10px", alignItems: "center" }}>
                             <button style={{ width: "75px", marginBottom: "10px" }} type="submit">Create</button>
-                        </div>
+                        </div> */}
 
                     </form>
                 </div>
-                <button style={{ width: "100px" }} type="button" onClick={() => navigate("/projects")}>My Projects</button>
+                <button style={{ width: "100px" }} type="button" onClick={() => navigate(AppPaths.projects())}>My Projects</button>
             </div>
         </div>
     )

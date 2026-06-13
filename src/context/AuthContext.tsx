@@ -7,6 +7,7 @@ type UserResponse = { //Get for account creation at registration
     refreshToken: string;
     refreshTokenExpiration: string;
     email: string;
+    privileges: string[];
 }
 
 type AuthContextType = {
@@ -48,7 +49,7 @@ export default function AuthProvider({ children }: AuthProps) {
     function logout() {
         setUser(null);
         localStorage.removeItem("user");
-        localStorage.removeItem("token");
+        localStorage.removeItem("access_token");
         localStorage.removeItem("email")
     }
 
@@ -58,6 +59,7 @@ export default function AuthProvider({ children }: AuthProps) {
         localStorage.setItem("token", user.token);
         localStorage.setItem("email", user.email);
         localStorage.setItem("user", JSON.stringify(user));
+        localStorage.setItem("privileges", JSON.stringify(user.privileges));
     }
 
     return (

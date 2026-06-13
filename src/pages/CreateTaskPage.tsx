@@ -3,8 +3,15 @@ import { useNavigate } from 'react-router-dom';
 import "../layout/createPage.css";
 import { createTask } from '../services/TaskService';
 import { useProjects } from '../context/ProjectContext';
+import { useAuth } from '../context/AuthContext';
+import { AppPaths } from '../routes/Route';
 
 function CreateTaskPage() {
+
+    const { user } = useAuth()
+
+    const canCreate = user?.privileges.includes("CREATE") === true;
+
 
     const { selectedProject } = useProjects();
 
@@ -47,6 +54,8 @@ function CreateTaskPage() {
             title: form.name,
             description: form.description
         }).catch(error => console.log(error));
+
+        navigate(AppPaths.createTask(id))
     }
     return (
 
@@ -73,13 +82,16 @@ function CreateTaskPage() {
                                     resize: "none",
                                 }} />
                         </div>
-                        <div style={{ display: "flex", flexDirection: "column", gap: "10px", alignItems: "center" }}>
-                            <button style={{ width: "75px", marginBottom: "10px" }} type="submit">Create</button>
-                        </div>
+                        {
+
+                            canCreate ? <div style={{ display: "flex", flexDirection: "column", gap: "10px", alignItems: "center" }}>
+                                <button style={{ width: "75px", marginBottom: "10px" }} type="submit">Create</button>
+                            </div> : <></>
+                        }
 
                     </form>
                 </div>
-                <button type="button" style={{ margin: "20px" }} onClick={() => navigate(`/projects/${id}/edit`)}>
+                <button type="button" style={{ margin: "20px" }} onClick={() => navigate(AppPaths.editProject(id))}>
                     Back to Project
                 </button>
             </div>

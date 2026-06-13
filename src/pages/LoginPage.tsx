@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { loginUser } from "../services/AuthService";
 import { useAuth } from "../context/AuthContext";
+import { AppPaths } from "../routes/Route";
 
 
 function LoginPage() {
@@ -38,10 +39,12 @@ function LoginPage() {
 
       const user = authResponse;
 
+      console.log(user)
+
 
       user.email = form.email;
       login(user);
-      navigate("/")
+      navigate(AppPaths.home())
 
     }
     catch (errors) {
@@ -64,7 +67,7 @@ function LoginPage() {
 
       </form>
       <div style={{ marginTop: "20px" }}>
-        <p><strong>Have you Registered? <button type="button" onClick={() => navigate("/register")}>Register</button> </strong></p>
+        <p><strong>Have you Registered? <button type="button" onClick={() => navigate(AppPaths.register())}>Register</button> </strong></p>
       </div>
 
     </section>

@@ -1,11 +1,11 @@
-.task-list {
+.organization-list {
     display: grid;
     width: min(100%, 860px);
     margin: 26px auto 0;
     gap: 18px;
 }
 
-.task-card {
+.organization-card {
     position: relative;
     overflow: hidden;
     display: grid;
@@ -23,7 +23,7 @@
     text-align: left;
 }
 
-.task-card::before {
+.organization-card::before {
     content: "";
     position: absolute;
     inset: 0 auto 0 0;
@@ -31,13 +31,13 @@
     background: linear-gradient(180deg, var(--accent), #14b8a6);
 }
 
-.task-card__header {
+.organization-card__header {
     display: flex;
     align-items: center;
     gap: 14px;
 }
 
-.task-card__avatar {
+.organization-card__avatar {
     display: inline-flex;
     width: 54px;
     height: 54px;
@@ -52,7 +52,7 @@
     letter-spacing: 0;
 }
 
-.task-card__eyebrow {
+.organization-card__eyebrow {
     color: var(--accent);
     font-size: 0.76rem;
     font-weight: 800;
@@ -61,73 +61,26 @@
     text-transform: uppercase;
 }
 
-.task-card__title {
+.organization-card__title {
     margin: 2px 0 0;
     color: var(--text-h);
     font-size: clamp(1.25rem, 3vw, 1.75rem);
     line-height: 1.15;
 }
 
-.task-card__description {
+.organization-card__description {
     max-width: 64ch;
     color: var(--text);
     font-size: 1rem;
 }
 
-.task-card__badges,
-.task-card__actions {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 10px;
-}
-
-.task-card__badge {
-    display: inline-flex;
-    min-height: 32px;
-    align-items: center;
-    border: 1px solid rgba(148, 163, 184, 0.34);
-    border-radius: var(--radius);
-    padding: 0 12px;
-    background: rgba(15, 23, 42, 0.58);
-    color: var(--text-h);
-    font-size: 0.8rem;
-    font-weight: 850;
-    text-transform: capitalize;
-}
-
-.task-card__badge--todo,
-.task-card__badge--low {
-    border-color: rgba(20, 184, 166, 0.38);
-    background: rgba(20, 184, 166, 0.12);
-    color: #ccfbf1;
-}
-
-.task-card__badge--in_progress,
-.task-card__badge--medium {
-    border-color: rgba(250, 204, 21, 0.36);
-    background: rgba(250, 204, 21, 0.12);
-    color: #fef9c3;
-}
-
-.task-card__badge--done {
-    border-color: rgba(56, 189, 248, 0.42);
-    background: rgba(56, 189, 248, 0.13);
-    color: #e0f2fe;
-}
-
-.task-card__badge--high {
-    border-color: rgba(248, 113, 113, 0.42);
-    background: rgba(248, 113, 113, 0.12);
-    color: #fee2e2;
-}
-
-.task-card__meta {
+.organization-card__meta {
     display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
+    grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 12px;
 }
 
-.task-card__stat {
+.organization-card__stat {
     min-width: 0;
     padding: 14px;
     border: 1px solid rgba(51, 65, 85, 0.85);
@@ -135,19 +88,19 @@
     background: rgba(15, 23, 42, 0.55);
 }
 
-.task-card__stat span,
-.task-card__stat small {
+.organization-card__stat span,
+.organization-card__stat small {
     display: block;
 }
 
-.task-card__stat span {
+.organization-card__stat span {
     overflow-wrap: anywhere;
     color: var(--text-h);
     font-weight: 850;
     line-height: 1.25;
 }
 
-.task-card__stat small {
+.organization-card__stat small {
     margin-top: 3px;
     color: var(--muted);
     font-size: 0.78rem;
@@ -155,15 +108,7 @@
     text-transform: uppercase;
 }
 
-.task-card__actions {
-    padding-top: 2px;
-}
-
-.task-card__actions button {
-    margin-top: 0;
-}
-
-.task-empty {
+.organization-empty {
     width: min(100%, 620px);
     margin: 18px auto 0;
     padding: 26px;
@@ -174,28 +119,26 @@
     text-align: center;
 }
 
-.task-empty__title {
+.organization-empty__title {
     color: var(--text-h);
     font-size: 1.08rem;
     font-weight: 800;
 }
 
-.task-empty__copy {
+.organization-empty__copy {
     margin-top: 4px;
 }
 
-@media (max-width: 680px) {
-    .task-card__meta {
-        grid-template-columns: 1fr;
-    }
-}
-
 @media (max-width: 560px) {
-    .task-card {
+    .organization-card {
         padding: 18px;
     }
 
-    .task-card__header {
+    .organization-card__header {
         align-items: flex-start;
+    }
+
+    .organization-card__meta {
+        grid-template-columns: 1fr;
     }
 }

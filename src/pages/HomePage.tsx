@@ -1,29 +1,27 @@
 import { Link, useNavigate } from "react-router-dom";
 import { logoutUser } from "../services/AuthService";
 import { useAuth } from "../context/AuthContext";
+import { useOrgs } from "../context/OrgContext";
+import { AppPaths } from "../routes/Route";
 
 
 export default function HomePage() {
 
   const navigate = useNavigate();
   const { logout, user } = useAuth();
+  const { clearOrgs } = useOrgs();
+  const org_link = <Link to={AppPaths.organizations()}>organizations</Link>;
 
   async function onClick() {
-    const refreshToken = user?.refreshToken;
 
-    if (!refreshToken) {
-      return;
-    }
+    const response = await logoutUser().catch(error => console.log(error));
 
-    await logoutUser({
-      refreshToken: refreshToken
-    });
-
-    console.log("at logout")
+    console.log(response)
+    clearOrgs();
     logout();
 
-    navigate("/login")
 
+    navigate(AppPaths.login())
   }
 
   return (
@@ -31,7 +29,10 @@ export default function HomePage() {
       <section>
         <h1>Cloud Task Manager</h1>
         <p>Hello {user?.email} track your projects, organize tasks, and keep cloud work moving.</p>
-        <Link to="/projects">projects</Link>
+        <Link to={AppPaths.projects()}>projects</Link>
+        {
+          user?.privileges.map(priv => priv === "CREATE") ? org_link : <></>
+        }
         <div> <button type="button" onClick={onClick}>Sign-out</button> </div>
       </section>
     </main>

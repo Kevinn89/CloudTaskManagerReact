@@ -1,24 +1,48 @@
 .createPage {
-
     display: flex;
     justify-content: center;
-
-
+    width: 100%;
+    padding: 36px 24px;
 }
 
-.create-project-input {
+.createPage > div {
+    width: min(100%, 680px);
+    text-align: center;
+}
 
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    color: black;
-    border: 10px solid black;
-    width: 500px;
+.create-project-input,
+.create-task-input {
+    width: 100%;
+    margin-top: 18px;
+    padding: 24px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    background: var(--surface);
+    box-shadow: var(--shadow);
+}
 
-    /* margin: 50px;
+.create-project-input form,
+.create-task-input form {
+    margin-top: 0;
+    padding: 0;
+    border: 0;
+    box-shadow: none;
+}
 
-    padding: 50px;
-    width: 300px; */
-    background-color: grey;
+.create-project-input h2,
+.create-task-input h2 {
+    margin-top: 10px;
+    font-size: 1rem;
+    text-align: left;
+}
+
+@media (max-width: 720px) {
+    .createPage {
+        padding: 22px 12px;
+    }
+
+    .create-project-input,
+    .create-task-input {
+        padding: 18px;
+    }
 }
