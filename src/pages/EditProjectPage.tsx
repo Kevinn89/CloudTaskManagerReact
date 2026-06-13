@@ -6,9 +6,12 @@ import { useNavigate, useParams } from "react-router-dom";
 
 import TaskList from '../components/task/TaskList';
 import { useAuth } from '../context/AuthContext';
-import { useProjects } from "../context/ProjectContext";
+// import { useProjects } from "../context/ProjectContext";
 import { AppPaths } from '../routes/Route';
 import { getProjectTasks, type TaskResponse } from '../services/TaskService';
+import { useAppDispatch, useAppSelector } from '../store/hooks';
+import { removeProjectFromState, setProjects, setSelectedProject, updateProjectInState } from "../store/ProjectSlice";
+
 
 type ProjectForm = {
     id: number;
@@ -30,12 +33,16 @@ function EditProjectsPage() {
     const canCreate = user?.privileges.includes("CREATE");
     const editable = false
     const navigate = useNavigate()
+    const dispatch = useAppDispatch();
+
 
     if (!user)
         return "No User"
 
 
-    const { selectedProject, updateProjectInState, removeProjectFromState, setSelectedProject } = useProjects();
+    const selectedProject = useAppSelector(state => state.project.selectedProject);
+
+    //  const { selectedProject, updateProjectInState, removeProjectFromState, setSelectedProject } = useProjects();
 
     const [taskList, setTaskList] = useState<TaskResponse[]>([])
 
@@ -77,7 +84,7 @@ function EditProjectsPage() {
                 tasks: tasks
             })
 
-            setSelectedProject(project);
+            dispatch(setSelectedProject(project));
         }
         async function getMyTask() {
             const list = await getProjectTasks(Number(projectId)).catch(error => console.log(error))
@@ -101,7 +108,7 @@ function EditProjectsPage() {
             Number(projectId)
         ).catch(error => console.log(error))
 
-        removeProjectFromState(Number(projectId));
+        dispatch(removeProjectFromState(Number(projectId)));
         navigate(AppPaths.projects())
 
     }
@@ -125,7 +132,7 @@ function EditProjectsPage() {
             throw new Error(`No Update for Project ${form.name}`)
         }
 
-        updateProjectInState(updatedProject);
+        dispatch(updateProjectInState(updatedProject));
 
         navigate(AppPaths.projects())
     }

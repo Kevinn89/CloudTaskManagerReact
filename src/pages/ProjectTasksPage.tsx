@@ -1,12 +1,15 @@
 import { useEffect, useState } from "react";
 import TaskList from "../components/task/TaskList";
-import { useProjects } from "../context/ProjectContext";
+// import { useProjects } from "../context/ProjectContext";
 import { type TaskResponse } from "../services/TaskService";
+import { useAppSelector } from "../store/hooks";
 
 
 function ProjectTasksPage() {
 
-  const { selectedProject } = useProjects();
+  // const { selectedProject } = useProjects();
+
+  const selectedProject = useAppSelector(state => state.project.selectedProject);
   const [taskList, setTaskList] = useState<TaskResponse[]>([])
 
   const editable = true

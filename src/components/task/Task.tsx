@@ -1,14 +1,19 @@
 import { useNavigate } from "react-router-dom";
-import { useProjects } from "../../context/ProjectContext";
+// import { useProjects } from "../../context/ProjectContext";
 import { useAuth } from "../../context/AuthContext";
 import { type TaskResponse } from "../../services/TaskService";
+import { setSelectedTask } from "../../store/ProjectSlice";
 import "./Task.css";
+
+
+
 type TaskProps = {
     task: TaskResponse;
     enableEdit: boolean
 }
 
 function Task({ task, enableEdit }: TaskProps) {
+
 
     const { user } = useAuth()
 
@@ -17,7 +22,9 @@ function Task({ task, enableEdit }: TaskProps) {
 
     const { title, description, id, projectId, dueDate, completionDate, priority, taskStatus, createdAt } = task
 
-    const { setSelectedTask } = useProjects();
+    // const { setSelectedTask } = useProjects();
+
+
 
     const navigate = useNavigate();
 

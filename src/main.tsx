@@ -1,22 +1,24 @@
 import { createRoot } from 'react-dom/client'
+import { Provider } from 'react-redux'
 import { BrowserRouter } from 'react-router-dom'
 import App from './App.tsx'
-import './index.css'
 import AuthProvider from './context/AuthContext.tsx'
-import ProjectProvider from './context/ProjectContext.tsx'
 import OrgProvider from './context/OrgContext.tsx'
+import './index.css'
+import { store } from './store/Store.tsx'
 
 createRoot(document.getElementById('root')!).render(
   // <StrictMode>
-  <BrowserRouter>
-    <AuthProvider>
-      <ProjectProvider>
+  <Provider store={store}>
+    <BrowserRouter>
+      <AuthProvider>
+        {/* //  <ProjectProvider> */}
         <OrgProvider>
           <App />
         </OrgProvider>
-      </ProjectProvider>
-    </AuthProvider>
-  </BrowserRouter>
-
+        {/* </ProjectProvider> */}
+      </AuthProvider>
+    </BrowserRouter>
+  </Provider>
   // </StrictMode>
 )

@@ -9,7 +9,7 @@ function OrganizationPage() {
 
     const { user } = useAuth()
 
-    const canCreate = user?.privileges.includes("CREATE") === true;
+    const canCreate = user?.privileges.includes("CREATE");
 
     const [orgs, setOrgs] = useState<OrgResponse[]>([])
     const { setSelectedOrg } = useOrgs();
@@ -28,17 +28,17 @@ function OrganizationPage() {
 
     }, []) //fix this
 
-    function testOrgs() {
+    // function testOrgs() {
 
-        async function loadOrganizations() {
-            const orgs = await getUserOrganizations();
+    //     async function loadOrganizations() {
+    //         const orgs = await getUserOrganizations();
 
-            console.log(orgs)
-            setOrgs(orgs)
-        }
+    //         console.log(orgs)
+    //         setOrgs(orgs)
+    //     }
 
-        loadOrganizations();
-    }
+    //     loadOrganizations();
+    // }
 
 
     return (
@@ -48,7 +48,7 @@ function OrganizationPage() {
                 <h1>Organization</h1>
                 <p>View and your active organizations.</p>
 
-                <button type="button" onClick={testOrgs} >Test ORGS</button>
+                {/* <button type="button" onClick={testOrgs} >Test ORGS</button> */}
                 {
 
                     canCreate ? <button type="button" style={{ margin: "20px" }} onClick={() => navigate(AppPaths.adminOrganizations())}>

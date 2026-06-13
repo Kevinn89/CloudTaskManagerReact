@@ -2,9 +2,10 @@ import React, { useState, type ChangeEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
 import "../layout/createPage.css";
 import { createTask } from '../services/TaskService';
-import { useProjects } from '../context/ProjectContext';
+// import { useProjects } from '../context/ProjectContext';
 import { useAuth } from '../context/AuthContext';
 import { AppPaths } from '../routes/Route';
+import { useAppSelector } from '../store/hooks';
 
 function CreateTaskPage() {
 
@@ -12,8 +13,9 @@ function CreateTaskPage() {
 
     const canCreate = user?.privileges.includes("CREATE") === true;
 
+    const selectedProject = useAppSelector(state => state.project.selectedProject);
 
-    const { selectedProject } = useProjects();
+    // const { selectedProject } = useProjects();
 
     if (!selectedProject)
         return <>No Project</>

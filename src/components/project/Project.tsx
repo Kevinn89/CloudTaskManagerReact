@@ -1,8 +1,9 @@
 import { useNavigate } from "react-router-dom";
 import type { ProjectResponse } from '../../services/ProjectService';
-import { useProjects } from "../../context/ProjectContext";
 import "/src/components/project/Project.css";
 import { useAuth } from "../../context/AuthContext";
+import { setSelectedProject } from "../../store/ProjectSlice";
+import { useAppDispatch } from "../../store/hooks";
 
 
 type ProjectProps =
@@ -19,11 +20,15 @@ function Project({ project }: ProjectProps) {
 
     const navigate = useNavigate();
 
-    const { setSelectedProject } = useProjects();
+    const dispatch = useAppDispatch();
+
+
+
+    // const { setSelectedProject } = useProjects();
 
     function onClick() {
 
-        setSelectedProject(project)
+        dispatch(setSelectedProject(project))
 
         const projectId = project.id;
 

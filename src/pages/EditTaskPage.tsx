@@ -3,17 +3,23 @@ import { useState } from 'react';
 
 import { useNavigate } from "react-router-dom";
 
-import { useProjects } from "../context/ProjectContext";
+// import { useProjects } from "../context/ProjectContext";
 import { deleteTask, updateTask } from '../services/TaskService';
 import { useAuth } from '../context/AuthContext';
 import { AppPaths } from '../routes/Route';
+import { useAppDispatch, useAppSelector } from '../store/hooks';
+import { removeTaskFromSelectedProject } from '../store/ProjectSlice';
 
 
 
 function EditTaskPage() {
 
+    const dispatch = useAppDispatch();
 
-    const { removeTaskFromSelectedProject, selectedTask } = useProjects();
+    // const { removeTaskFromSelectedProject, selectedTask } = useProjects();
+
+    const selectedTask = useAppSelector(state => state.project.selectedTask);
+
     const { user } = useAuth()
 
     const canCreate = user?.privileges.includes("CREATE") === true;
@@ -63,7 +69,7 @@ function EditTaskPage() {
     async function removeTask() {
 
         await deleteTask(id, projectId).catch(error => console.log(error))
-        removeTaskFromSelectedProject(task);
+        dispatch(removeTaskFromSelectedProject(task));
         navigate(`/projects/${projectId}/edit`);
     }
 

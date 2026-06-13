@@ -1,19 +1,21 @@
 import { useEffect } from "react";
 import { Link } from "react-router-dom";
 import ProjectList from "../components/project/ProjectList";
-import { useProjects } from "../context/ProjectContext";
-import { getUserProjects } from "../services/ProjectService";
 import { useAuth } from "../context/AuthContext";
 import { AppPaths } from "../routes/Route";
+import { getUserProjects } from "../services/ProjectService";
+import { useAppDispatch, useAppSelector } from "../store/hooks";
+import { setProjects } from "../store/ProjectSlice";
+
 
 
 function ProjectsPage() {
 
   const { user } = useAuth()
 
-  const canCreate = user?.privileges.includes("CREATE") === true;
-
-  const { setProjects, projects } = useProjects();
+  const canCreate = user?.privileges.includes("CREATE");
+  const dispatch = useAppDispatch();
+  const projects = useAppSelector(state => state.project.projects);
 
   useEffect(() => {
 
@@ -21,7 +23,8 @@ function ProjectsPage() {
       const proj = await getUserProjects();
 
       console.log(proj)
-      setProjects(proj);
+
+      dispatch(setProjects(proj));
     }
 
     loadProjects();
