@@ -1,5 +1,7 @@
 import type { ProjectResponse } from "../services/ProjectService";
+import type { OrgResponse } from "../services/OrgService";
 import type { TaskResponse } from "../services/TaskService";
+import type { UserResponse } from "../services/UserService";
 
 export function makeTask(overrides: Partial<TaskResponse> = {}): TaskResponse {
     return {
@@ -30,6 +32,26 @@ export function makeProject(overrides: Partial<ProjectResponse> = {}): ProjectRe
         status: "ACTIVE",
         priority: "HIGH",
         tasks,
+        ...overrides,
+    };
+}
+
+export function makeOrg(overrides: Partial<OrgResponse> = {}): OrgResponse {
+    return {
+        id: 20,
+        name: "Platform Team",
+        description: "Owns shared cloud task management.",
+        createdAt: "2026-06-01T00:00:00.000Z",
+        memberCount: 3,
+        ...overrides,
+    };
+}
+
+export function makeUser(overrides: Partial<UserResponse> = {}): UserResponse {
+    return {
+        id: 30,
+        name: "Taylor Admin",
+        email: "taylor@example.com",
         ...overrides,
     };
 }
