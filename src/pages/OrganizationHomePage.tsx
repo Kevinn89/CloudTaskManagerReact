@@ -2,11 +2,11 @@ import { useEffect, useState } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import Organizaion from "../components/organization/Organizaion";
 import NameSearchBox from "../components/searchBox/NameSearchBox";
-import { useOrgs } from "../context/OrgContext";
 import { AppPaths, RoutePatterns } from "../routes/Route";
 import { addUserToOrg, deleteOrganization, getOrganization } from "../services/OrgService";
 import { getNonOrgUsers, type UserResponse } from "../services/UserService";
-import { useAppSelector } from "../store/hooks";
+import { removeOrgFromState, setSelectedOrg, setSelectedUser } from "../store/OrgSlice";
+import { useAppDispatch, useAppSelector } from "../store/hooks";
 
 type OrganizationHomePageProps = {
 
@@ -29,7 +29,9 @@ function OrganizationHomePage({ isAllowed }: OrganizationHomePageProps) {
     const canDELETE = user?.privileges.includes("DELETE");
     const canCreate = user?.privileges.includes("CREATE");
 
-    const { removeOrgFromState, selectedUser, setSelectedUser, selectedOrg, setSelectedOrg } = useOrgs();
+    const dispatch = useAppDispatch();
+    const selectedOrg = useAppSelector(state => state.org.selectedOrg);
+    const selectedUser = useAppSelector(state => state.org.selectedUser);
 
     const [userList, setUserList] = useState<UserResponse[]>([])
 
@@ -45,7 +47,7 @@ function OrganizationHomePage({ isAllowed }: OrganizationHomePageProps) {
             if (!org)
                 throw new Error(`No Organization for id ${id}`);
 
-            setSelectedOrg(org)
+            dispatch(setSelectedOrg(org))
         }
 
         async function getUserList() {
@@ -57,7 +59,7 @@ function OrganizationHomePage({ isAllowed }: OrganizationHomePageProps) {
         getUserList();
         getMyOrg();
 
-    }, [])
+    }, [dispatch, orgId])
 
     async function removeOrg() {
 
@@ -67,7 +69,7 @@ function OrganizationHomePage({ isAllowed }: OrganizationHomePageProps) {
             id
         ).catch(error => console.log(error))
 
-        removeOrgFromState(id);
+        dispatch(removeOrgFromState(id));
         navigate(AppPaths.adminOrganizations())
 
     }
@@ -89,7 +91,7 @@ function OrganizationHomePage({ isAllowed }: OrganizationHomePageProps) {
                 selectedOrg ? <Organizaion organization={selectedOrg} /> : <></>
             }
             {
-                canCreate && isAllowed ? <NameSearchBox users={userList} onSelectUser={setSelectedUser} /> : <></>
+                canCreate && isAllowed ? <NameSearchBox users={userList} onSelectUser={(user) => dispatch(setSelectedUser(user))} /> : <></>
             }
             {
                 canDELETE && isAllowed ? <button type="button" style={{ margin: "20px" }} onClick={removeOrg}>

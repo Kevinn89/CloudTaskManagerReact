@@ -1,9 +1,9 @@
-import { useEffect, useState, type Key } from 'react';
+import { useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { useOrgs } from '../context/OrgContext';
-import { getUserOrganizations, type OrgResponse } from '../services/OrgService';
+import { getUserOrganizations } from '../services/OrgService';
 import { AppPaths } from '../routes/Route';
-import { useAppSelector } from '../store/hooks';
+import { setOrgs, setSelectedOrg } from '../store/OrgSlice';
+import { useAppDispatch, useAppSelector } from '../store/hooks';
 
 
 function OrganizationPage() {
@@ -12,8 +12,8 @@ function OrganizationPage() {
 
     const canCreate = user?.privileges.includes("CREATE");
 
-    const [orgs, setOrgs] = useState<OrgResponse[]>([])
-    const { setSelectedOrg } = useOrgs();
+    const dispatch = useAppDispatch();
+    const orgs = useAppSelector(state => state.org.orgs);
     const navigate = useNavigate()
 
     useEffect(() => {
@@ -22,12 +22,12 @@ function OrganizationPage() {
             const orgs = await getUserOrganizations();
 
             console.log(orgs)
-            setOrgs(orgs)
+            dispatch(setOrgs(orgs))
         }
 
         loadOrganizations();
 
-    }, []) //fix this
+    }, [dispatch])
 
     // function testOrgs() {
 
@@ -59,11 +59,11 @@ function OrganizationPage() {
                 }
                 <div>
                     {
-                        orgs.length === 0 ? <p>No Organizations</p> : orgs.map((org: OrgResponse, indx: Key | null | undefined) => {
+                        orgs.length === 0 ? <p>No Organizations</p> : orgs.map((org) => {
 
                             console.log(org)
 
-                            return <Link key={(indx)} onClick={() => setSelectedOrg(org)} to={AppPaths.organizationHome(org.id)}> {org.name}</Link>;
+                            return <Link key={org.id} onClick={() => dispatch(setSelectedOrg(org))} to={AppPaths.organizationHome(org.id)}> {org.name}</Link>;
 
                         })
                     }
@@ -74,6 +74,5 @@ function OrganizationPage() {
 }
 
 export default OrganizationPage
-
 
 

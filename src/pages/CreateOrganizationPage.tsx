@@ -1,14 +1,15 @@
 import React, { useState } from 'react'
 import { createOrganziation } from '../services/OrgService';
 import { useNavigate } from 'react-router-dom';
-import { useOrgs } from '../context/OrgContext';
 import { AppPaths } from '../routes/Route';
+import { addOrg } from '../store/OrgSlice';
+import { useAppDispatch } from '../store/hooks';
 
 function CreateOrganizationPage() {
 
     const navigate = useNavigate();
 
-    const { addOrg } = useOrgs();
+    const dispatch = useAppDispatch();
 
     const [form, setForm] = useState({
         id: 0,
@@ -37,7 +38,7 @@ function CreateOrganizationPage() {
             })
 
             console.log(response)
-            addOrg(response);
+            dispatch(addOrg(response));
 
         }
         catch (error) {

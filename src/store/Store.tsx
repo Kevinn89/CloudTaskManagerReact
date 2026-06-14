@@ -2,6 +2,7 @@
 import { combineReducers, configureStore } from "@reduxjs/toolkit";
 import projectReducer from "./ProjectSlice";
 import authReducer from "./AuthSlice";
+import orgReducer from "./OrgSlice";
 import {
     persistReducer,
     persistStore,
@@ -23,6 +24,7 @@ const rootReducer = combineReducers({
 
     auth: persistReducer(authPersistConfig, authReducer),
     project: projectReducer,
+    org: orgReducer,
 
 });
 

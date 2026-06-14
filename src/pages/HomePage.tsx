@@ -1,10 +1,10 @@
 import { Link, useNavigate } from "react-router-dom";
 import { logoutUser as logoutUserRequest } from "../services/AuthService";
-import { useOrgs } from "../context/OrgContext";
 import { AppPaths } from "../routes/Route";
 import { useAppDispatch, useAppSelector } from "../store/hooks";
 import { logoutUser } from "../store/AuthSlice";
 import { persistor } from "../store/Store";
+import { clearOrgs } from "../store/OrgSlice";
 
 
 export default function HomePage() {
@@ -15,14 +15,12 @@ export default function HomePage() {
 
   const dispatch = useAppDispatch();
 
-  const { clearOrgs } = useOrgs();
-
   async function onClick() {
 
     const response = await logoutUserRequest().catch(error => console.log(error));
 
     console.log(response)
-    clearOrgs();
+    dispatch(clearOrgs());
 
     dispatch(logoutUser());
     await persistor.flush();
@@ -45,4 +43,3 @@ export default function HomePage() {
     </main>
   );
 }
-

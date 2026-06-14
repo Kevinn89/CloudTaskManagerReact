@@ -4,10 +4,11 @@ import userEvent from "@testing-library/user-event";
 import { Provider } from "react-redux";
 import { MemoryRouter, Route, Routes } from "react-router-dom";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import OrgProvider, { useOrgs } from "../context/OrgContext";
 import { getUserOrganizations } from "../services/OrgService";
 import authReducer, { setUser } from "../store/AuthSlice";
+import orgReducer from "../store/OrgSlice";
 import projectReducer from "../store/ProjectSlice";
+import { useAppSelector } from "../store/hooks";
 import { makeOrg } from "../test/factories";
 import OrganizationPage from "./OrganizationPage";
 
@@ -24,6 +25,7 @@ function makeStore() {
     const store = configureStore({
         reducer: {
             auth: authReducer,
+            org: orgReducer,
             project: projectReducer,
         },
     });
@@ -41,7 +43,7 @@ function makeStore() {
 }
 
 function SelectedOrgRoute() {
-    const { selectedOrg } = useOrgs();
+    const selectedOrg = useAppSelector(state => state.org.selectedOrg);
 
     return <p>Selected organization: {selectedOrg?.name ?? "none"}</p>;
 }
@@ -59,14 +61,12 @@ describe("OrganizationPage integration", () => {
 
         render(
             <Provider store={makeStore()}>
-                <OrgProvider>
-                    <MemoryRouter initialEntries={["/organization/home"]}>
-                        <Routes>
-                            <Route path="/organization/home" element={<OrganizationPage />} />
-                            <Route path="/organization/home/:orgId" element={<SelectedOrgRoute />} />
-                        </Routes>
-                    </MemoryRouter>
-                </OrgProvider>
+                <MemoryRouter initialEntries={["/organization/home"]}>
+                    <Routes>
+                        <Route path="/organization/home" element={<OrganizationPage />} />
+                        <Route path="/organization/home/:orgId" element={<SelectedOrgRoute />} />
+                    </Routes>
+                </MemoryRouter>
             </Provider>
         );
 
@@ -83,11 +83,9 @@ describe("OrganizationPage integration", () => {
 
         render(
             <Provider store={makeStore()}>
-                <OrgProvider>
-                    <MemoryRouter>
-                        <OrganizationPage />
-                    </MemoryRouter>
-                </OrgProvider>
+                <MemoryRouter>
+                    <OrganizationPage />
+                </MemoryRouter>
             </Provider>
         );
 

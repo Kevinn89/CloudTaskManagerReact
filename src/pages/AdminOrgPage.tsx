@@ -1,9 +1,9 @@
 import { useEffect, type Key } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { useOrgs } from '../context/OrgContext';
 import { getAdminOrgs, type OrgResponse } from '../services/OrgService';
 import { AppPaths } from '../routes/Route';
-import { useAppSelector } from '../store/hooks';
+import { addOrgs, setSelectedOrg } from '../store/OrgSlice';
+import { useAppDispatch, useAppSelector } from '../store/hooks';
 
 function AdminOrgPage() {
 
@@ -11,7 +11,8 @@ function AdminOrgPage() {
 
     const navigate = useNavigate()
 
-    const { addOrgs, setSelectedOrg, orgs } = useOrgs()
+    const dispatch = useAppDispatch();
+    const orgs = useAppSelector(state => state.org.orgs);
 
     const canCreate = user?.privileges.includes("CREATE");
 
@@ -28,7 +29,7 @@ function AdminOrgPage() {
                 const response = await getAdminOrgs();
 
                 console.log(response);
-                addOrgs(response);
+                dispatch(addOrgs(response));
 
             } catch (error) {
                 console.log(error)
@@ -54,7 +55,7 @@ function AdminOrgPage() {
                 {
                     orgs.length === 0 ? <p>No Organizations</p> : orgs.map((org: OrgResponse, indx: Key | null | undefined) => {
 
-                        return <Link key={(indx)} onClick={() => setSelectedOrg(org)} to={AppPaths.adminOrganizationHome(org.id)}> {org.name}</Link>;
+                        return <Link key={(indx)} onClick={() => dispatch(setSelectedOrg(org))} to={AppPaths.adminOrganizationHome(org.id)}> {org.name}</Link>;
 
                     })
                 }

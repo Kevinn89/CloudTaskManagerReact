@@ -49,9 +49,9 @@ export function makeOrg(overrides: Partial<OrgResponse> = {}): OrgResponse {
 
 export function makeUser(overrides: Partial<UserResponse> = {}): UserResponse {
     return {
-        id: 30,
-        name: "Taylor Admin",
-        email: "taylor@example.com",
+        id: 1,
+        name: "Test User",
+        email: "test@test.com",
         ...overrides,
     };
 }
