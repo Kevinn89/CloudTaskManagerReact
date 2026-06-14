@@ -1,9 +1,8 @@
 import { useNavigate } from "react-router-dom";
 import type { ProjectResponse } from '../../services/ProjectService';
 import "/src/components/project/Project.css";
-import { useAuth } from "../../context/AuthContext";
 import { setSelectedProject } from "../../store/ProjectSlice";
-import { useAppDispatch } from "../../store/hooks";
+import { useAppDispatch, useAppSelector } from "../../store/hooks";
 
 
 type ProjectProps =
@@ -14,17 +13,14 @@ type ProjectProps =
 function Project({ project }: ProjectProps) {
 
 
-    const { user } = useAuth()
-
-    const canCreate = user?.privileges.includes("CREATE") === true;
-
-    const navigate = useNavigate();
+    const user = useAppSelector(state => state.auth.user);
 
     const dispatch = useAppDispatch();
 
 
+    const canCreate = user?.privileges.includes("CREATE");
 
-    // const { setSelectedProject } = useProjects();
+    const navigate = useNavigate();
 
     function onClick() {
 
@@ -38,7 +34,7 @@ function Project({ project }: ProjectProps) {
 
     function goToTasks() {
 
-        setSelectedProject(project)
+        dispatch(setSelectedProject(project))
 
         const projectId = project.id;
 

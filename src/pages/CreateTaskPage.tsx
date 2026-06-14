@@ -2,16 +2,14 @@ import React, { useState, type ChangeEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
 import "../layout/createPage.css";
 import { createTask } from '../services/TaskService';
-// import { useProjects } from '../context/ProjectContext';
-import { useAuth } from '../context/AuthContext';
 import { AppPaths } from '../routes/Route';
 import { useAppSelector } from '../store/hooks';
 
 function CreateTaskPage() {
 
-    const { user } = useAuth()
+    const user = useAppSelector(state => state.auth.user);
 
-    const canCreate = user?.privileges.includes("CREATE") === true;
+    const canCreate = user?.privileges.includes("CREATE");
 
     const selectedProject = useAppSelector(state => state.project.selectedProject);
 

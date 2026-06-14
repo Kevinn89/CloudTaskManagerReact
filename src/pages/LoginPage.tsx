@@ -1,13 +1,14 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { loginUser } from "../services/AuthService";
-import { useAuth } from "../context/AuthContext";
 import { AppPaths } from "../routes/Route";
+import { setUser } from "../store/AuthSlice";
+import { useAppDispatch } from "../store/hooks";
 
 
 function LoginPage() {
 
-  const { login } = useAuth();
+  const dispatch = useAppDispatch();
 
   const navigate = useNavigate();
 
@@ -43,7 +44,8 @@ function LoginPage() {
 
 
       user.email = form.email;
-      login(user);
+      dispatch(setUser(user))
+      // login(user);
       navigate(AppPaths.home())
 
     }

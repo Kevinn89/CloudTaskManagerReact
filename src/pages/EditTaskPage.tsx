@@ -4,9 +4,8 @@ import { useState } from 'react';
 import { useNavigate } from "react-router-dom";
 
 // import { useProjects } from "../context/ProjectContext";
-import { deleteTask, updateTask } from '../services/TaskService';
-import { useAuth } from '../context/AuthContext';
 import { AppPaths } from '../routes/Route';
+import { deleteTask, updateTask } from '../services/TaskService';
 import { useAppDispatch, useAppSelector } from '../store/hooks';
 import { removeTaskFromSelectedProject } from '../store/ProjectSlice';
 
@@ -16,17 +15,8 @@ function EditTaskPage() {
 
     const dispatch = useAppDispatch();
 
-    // const { removeTaskFromSelectedProject, selectedTask } = useProjects();
-
     const selectedTask = useAppSelector(state => state.project.selectedTask);
 
-    const { user } = useAuth()
-
-    const canCreate = user?.privileges.includes("CREATE") === true;
-
-
-    if (!user)
-        throw new Error("No User")
     if (!selectedTask)
         return <>No task</>
 
@@ -36,24 +26,6 @@ function EditTaskPage() {
 
     const navigate = useNavigate();
 
-
-    function getButtons() {
-        const buttons = []
-        const canUpdate = user?.privileges.includes("UPDATE") === true;
-        const canDELETE = user?.privileges.includes("DELETE") === true;
-
-        if (canDELETE)
-            buttons.push(
-                <button type="submit">Update</button>,
-                <button type="button" style={{ margin: "20px" }} onClick={removeTask}>
-                    Delete
-                </button>)
-
-        if (canUpdate)
-            buttons.push(<button type="submit">Update</button>)
-
-        return buttons;
-    }
 
     const [form, setForm] = useState({
         id: id,

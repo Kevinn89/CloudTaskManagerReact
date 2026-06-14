@@ -1,28 +1,50 @@
-// import { createContext, type ReactNode, useContext, useState } from 'react';
+import { createSlice, type PayloadAction } from '@reduxjs/toolkit';
 
 
-// type UserResponse = { //Get for account creation at registration
-//     token: string;
-//     tokenExpiration: string;
-//     refreshToken: string;
-//     refreshTokenExpiration: string;
-//     email: string;
-//     privileges: string[];
-// }
+type UserResponse = { //Get for account creation at registration
+    token: string;
+    tokenExpiration: string;
+    refreshToken: string;
+    refreshTokenExpiration: string;
+    email: string;
+    privileges: string[];
+}
 
-// type AuthContextType = {
-//     user: UserResponse | null;
-//     login: (user: UserResponse) => void;
-//     logout: () => void;
-//     token: string;
-//     isAuthenticated: boolean;
-// }
-// const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-// type AuthProps = {
+type AuthState = {
 
-//     children: ReactNode
-// }
+    user: UserResponse | null
+}
+
+const initialState: AuthState = {
+    user: null
+}
+
+
+const authSlice = createSlice({
+    name: "auth",
+    initialState,
+    reducers: {
+        setUser(state, action: PayloadAction<UserResponse>) {
+            state.user = action.payload
+
+            localStorage.setItem("token", state.user.token);
+            localStorage.setItem("email", state.user.email);
+            localStorage.setItem("user", JSON.stringify(state.user));
+            localStorage.setItem("privileges", JSON.stringify(state.user.privileges));
+        },
+        logoutUser(state) {
+            state.user = null;
+
+            localStorage.clear()
+
+        }
+    }
+});
+
+export const { setUser, logoutUser } = authSlice.actions;
+
+export default authSlice.reducer;
 
 // export default function AuthProvider({ children }: AuthProps) {
 

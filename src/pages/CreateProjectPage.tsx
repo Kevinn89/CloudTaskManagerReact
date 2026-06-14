@@ -2,12 +2,14 @@ import React, { useState, type ChangeEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
 import "../layout/createPage.css";
 import { createProject } from '../services/ProjectService';
-import { useAuth } from '../context/AuthContext';
 import { AppPaths } from '../routes/Route';
+import { useAppSelector } from '../store/hooks';
 
 function CreateProjectPage() {
 
-    const { user } = useAuth()
+
+    const user = useAppSelector(state => state.auth.user);
+
 
     const canCreate = user?.privileges.includes("CREATE") === true;
 

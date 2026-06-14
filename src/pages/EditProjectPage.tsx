@@ -5,8 +5,6 @@ import { deleteProject, getProject, updateProject } from '../services/ProjectSer
 import { useNavigate, useParams } from "react-router-dom";
 
 import TaskList from '../components/task/TaskList';
-import { useAuth } from '../context/AuthContext';
-// import { useProjects } from "../context/ProjectContext";
 import { AppPaths } from '../routes/Route';
 import { getProjectTasks, type TaskResponse } from '../services/TaskService';
 import { useAppDispatch, useAppSelector } from '../store/hooks';
@@ -28,7 +26,9 @@ type ProjectForm = {
 function EditProjectsPage() {
 
     const { projectId } = useParams()
-    const { user } = useAuth()
+
+    const user = useAppSelector(state => state.auth.user);
+
     const canDELETE = user?.privileges.includes("DELETE");
     const canCreate = user?.privileges.includes("CREATE");
     const editable = false

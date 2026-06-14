@@ -2,11 +2,11 @@ import { useEffect, useState } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import Organizaion from "../components/organization/Organizaion";
 import NameSearchBox from "../components/searchBox/NameSearchBox";
-import { useAuth } from "../context/AuthContext";
 import { useOrgs } from "../context/OrgContext";
 import { AppPaths, RoutePatterns } from "../routes/Route";
 import { addUserToOrg, deleteOrganization, getOrganization } from "../services/OrgService";
 import { getNonOrgUsers, type UserResponse } from "../services/UserService";
+import { useAppSelector } from "../store/hooks";
 
 type OrganizationHomePageProps = {
 
@@ -15,7 +15,8 @@ type OrganizationHomePageProps = {
 }
 
 function OrganizationHomePage({ isAllowed }: OrganizationHomePageProps) {
-    const { user } = useAuth()
+
+    const user = useAppSelector(state => state.auth.user);
 
     const { orgId } = useParams()
 

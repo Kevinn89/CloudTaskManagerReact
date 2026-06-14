@@ -1,9 +1,8 @@
 import { useNavigate } from "react-router-dom";
-// import { useProjects } from "../../context/ProjectContext";
-import { useAuth } from "../../context/AuthContext";
 import { type TaskResponse } from "../../services/TaskService";
 import { setSelectedTask } from "../../store/ProjectSlice";
 import "./Task.css";
+import { useAppSelector } from "../../store/hooks";
 
 
 
@@ -15,7 +14,7 @@ type TaskProps = {
 function Task({ task, enableEdit }: TaskProps) {
 
 
-    const { user } = useAuth()
+    const user = useAppSelector(state => state.auth.user);
 
     if (!user)
         throw new Error("No User")

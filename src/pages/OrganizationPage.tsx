@@ -3,11 +3,11 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useOrgs } from '../context/OrgContext';
 import { getUserOrganizations, type OrgResponse } from '../services/OrgService';
 import { AppPaths } from '../routes/Route';
-import { useAuth } from '../context/AuthContext';
+import { useAppSelector } from '../store/hooks';
 
 function OrganizationPage() {
 
-    const { user } = useAuth()
+    const user = useAppSelector(state => state.auth.user);
 
     const canCreate = user?.privileges.includes("CREATE");
 

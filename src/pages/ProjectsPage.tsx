@@ -1,7 +1,6 @@
 import { useEffect } from "react";
 import { Link } from "react-router-dom";
 import ProjectList from "../components/project/ProjectList";
-import { useAuth } from "../context/AuthContext";
 import { AppPaths } from "../routes/Route";
 import { getUserProjects } from "../services/ProjectService";
 import { useAppDispatch, useAppSelector } from "../store/hooks";
@@ -11,7 +10,7 @@ import { setProjects } from "../store/ProjectSlice";
 
 function ProjectsPage() {
 
-  const { user } = useAuth()
+  const user = useAppSelector(state => state.auth.user);
 
   const canCreate = user?.privileges.includes("CREATE");
   const dispatch = useAppDispatch();

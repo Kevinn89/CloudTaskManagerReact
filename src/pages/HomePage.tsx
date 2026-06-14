@@ -1,14 +1,19 @@
 import { Link, useNavigate } from "react-router-dom";
 import { logoutUser } from "../services/AuthService";
-import { useAuth } from "../context/AuthContext";
 import { useOrgs } from "../context/OrgContext";
 import { AppPaths } from "../routes/Route";
+import { useAppDispatch, useAppSelector } from "../store/hooks";
 
 
 export default function HomePage() {
 
   const navigate = useNavigate();
-  const { logout, user } = useAuth();
+
+  const user = useAppSelector(state => state.auth.user);
+
+  const dispatch = useAppDispatch();
+
+
   const { clearOrgs } = useOrgs();
   const org_link = <Link to={AppPaths.organizations()}>organizations</Link>;
 
@@ -18,7 +23,8 @@ export default function HomePage() {
 
     console.log(response)
     clearOrgs();
-    logout();
+
+    dispatch(logoutUser);
 
 
     navigate(AppPaths.login())
@@ -38,5 +44,7 @@ export default function HomePage() {
     </main>
   );
 }
+
+
 
 
