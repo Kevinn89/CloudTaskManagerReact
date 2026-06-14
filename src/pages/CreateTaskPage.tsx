@@ -1,34 +1,33 @@
 import React, { useState, type ChangeEvent } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import "../layout/createPage.css";
 import { createTask } from '../services/TaskService';
 import { AppPaths } from '../routes/Route';
-import { useAppSelector } from '../store/hooks';
+import { useAppDispatch, useAppSelector } from '../store/hooks';
+import { addTaskToSelectedProject, setSelectedProjectId } from "../store/ProjectSlice";
 
 function CreateTaskPage() {
+
+    const dispatch = useAppDispatch();
 
     const user = useAppSelector(state => state.auth.user);
 
     const canCreate = user?.privileges.includes("CREATE");
 
-    const selectedProject = useAppSelector(state => state.project.selectedProject);
-
-    // const { selectedProject } = useProjects();
-
-    if (!selectedProject)
-        return <>No Project</>
-
-    const { id } = selectedProject;
-
+    const { projectId } = useParams();
+    const selectedProjectId = Number(projectId);
     const navigate = useNavigate()
 
     const [form, setForm] = useState({
-        id: id,
+        id: selectedProjectId,
         name: "",
         description: "",
         status: "",
         priority: ""
     })
+
+    if (!projectId || Number.isNaN(selectedProjectId))
+        return <>No Project</>
 
 
     function handleChange(event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>): void {
@@ -49,13 +48,19 @@ function CreateTaskPage() {
 
         event.preventDefault();
 
-        await createTask({
+        const response = await createTask({
             projectId: form.id,
             title: form.name,
             description: form.description
         }).catch(error => console.log(error));
 
-        navigate(AppPaths.createTask(id))
+        if (response) {
+            dispatch(addTaskToSelectedProject(response))
+            dispatch(setSelectedProjectId(response.projectId))
+        }
+
+        if (selectedProjectId)
+            navigate(AppPaths.editProject(selectedProjectId))
     }
     return (
 
@@ -91,7 +96,7 @@ function CreateTaskPage() {
 
                     </form>
                 </div>
-                <button type="button" style={{ margin: "20px" }} onClick={() => navigate(AppPaths.editProject(id))}>
+                <button type="button" style={{ margin: "20px" }} onClick={() => navigate(AppPaths.editProject(selectedProjectId))}>
                     Back to Project
                 </button>
             </div>

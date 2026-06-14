@@ -13,7 +13,7 @@ function AdminOrgPage() {
 
     const { addOrgs, setSelectedOrg, orgs } = useOrgs()
 
-    const canCreate = user?.privileges.includes("CREATE") === true;
+    const canCreate = user?.privileges.includes("CREATE");
 
 
     if (!orgs) {
@@ -40,7 +40,7 @@ function AdminOrgPage() {
     return (
         <main>
             <section>
-                <Link to={AppPaths.home()}>home</Link>
+                <Link to={AppPaths.organizations()}>home</Link>
                 <h1>Manage your Organizations</h1>
                 <p>View and manage your active projects.</p>
                 {

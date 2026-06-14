@@ -5,6 +5,7 @@ import { getUserOrganizations, type OrgResponse } from '../services/OrgService';
 import { AppPaths } from '../routes/Route';
 import { useAppSelector } from '../store/hooks';
 
+
 function OrganizationPage() {
 
     const user = useAppSelector(state => state.auth.user);

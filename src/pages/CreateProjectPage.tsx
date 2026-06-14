@@ -7,16 +7,16 @@ import { useAppSelector } from '../store/hooks';
 
 function CreateProjectPage() {
 
-
     const user = useAppSelector(state => state.auth.user);
 
+    const canCreate = user?.privileges.includes("CREATE");
 
-    const canCreate = user?.privileges.includes("CREATE") === true;
+    const navigate = useNavigate()
+
 
     if (!user)
         throw new Error("No User")
 
-    const navigate = useNavigate()
 
     const [form, setForm] = useState({
         name: "",
@@ -84,13 +84,9 @@ function CreateProjectPage() {
                             </div> :
                                 <></>
                         }
-                        {/* <div style={{ display: "flex", flexDirection: "column", gap: "10px", alignItems: "center" }}>
-                            <button style={{ width: "75px", marginBottom: "10px" }} type="submit">Create</button>
-                        </div> */}
-
                     </form>
                 </div>
-                <button style={{ width: "100px" }} type="button" onClick={() => navigate(AppPaths.projects())}>My Projects</button>
+                <button style={{ width: "100px", marginTop: "20px" }} type="button" onClick={() => navigate(AppPaths.projects())}>My Projects</button>
             </div>
         </div>
     )

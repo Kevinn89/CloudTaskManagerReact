@@ -1,13 +1,9 @@
 import { useState } from 'react';
-
-
 import { useNavigate } from "react-router-dom";
-
-// import { useProjects } from "../context/ProjectContext";
 import { AppPaths } from '../routes/Route';
 import { deleteTask, updateTask } from '../services/TaskService';
 import { useAppDispatch, useAppSelector } from '../store/hooks';
-import { removeTaskFromSelectedProject } from '../store/ProjectSlice';
+import { removeTaskFromSelectedProject, updateTaskInSelectedProject } from '../store/ProjectSlice';
 
 
 
@@ -25,7 +21,6 @@ function EditTaskPage() {
     const task = selectedTask;
 
     const navigate = useNavigate();
-
 
     const [form, setForm] = useState({
         id: id,
@@ -49,7 +44,7 @@ function EditTaskPage() {
     async function onSubmit(event: React.FormEvent<HTMLFormElement>) {
         event.preventDefault();
 
-        await updateTask({
+        const updatedTask = await updateTask({
             id: id,
             projectId: form.projectId,
             title: form.title,
@@ -59,7 +54,13 @@ function EditTaskPage() {
             dueDate: form.dueDate
         }).catch(error => console.log(error))
 
+
+        if (updatedTask) {
+            dispatch(updateTaskInSelectedProject(updatedTask));
+        }
+
         navigate(AppPaths.editProject(projectId));
+
     }
 
 

@@ -2,7 +2,7 @@ import { useNavigate } from "react-router-dom";
 import { type TaskResponse } from "../../services/TaskService";
 import { setSelectedTask } from "../../store/ProjectSlice";
 import "./Task.css";
-import { useAppSelector } from "../../store/hooks";
+import { useAppDispatch, useAppSelector } from "../../store/hooks";
 
 
 
@@ -15,20 +15,20 @@ function Task({ task, enableEdit }: TaskProps) {
 
 
     const user = useAppSelector(state => state.auth.user);
+    const dispatch = useAppDispatch();
+
 
     if (!user)
         throw new Error("No User")
 
     const { title, description, id, projectId, dueDate, completionDate, priority, taskStatus, createdAt } = task
 
-    // const { setSelectedTask } = useProjects();
-
-
-
     const navigate = useNavigate();
 
     function onClick() {
-        setSelectedTask(task);
+        console.log(task)
+
+        dispatch(setSelectedTask(task));
         navigate(`/task/${task.id}/edit`);
     }
 

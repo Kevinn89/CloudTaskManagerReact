@@ -1,7 +1,7 @@
 import { useNavigate } from "react-router-dom";
 import type { ProjectResponse } from '../../services/ProjectService';
 import "/src/components/project/Project.css";
-import { setSelectedProject } from "../../store/ProjectSlice";
+import { setSelectedProjectId } from "../../store/ProjectSlice";
 import { useAppDispatch, useAppSelector } from "../../store/hooks";
 
 
@@ -17,14 +17,13 @@ function Project({ project }: ProjectProps) {
 
     const dispatch = useAppDispatch();
 
-
     const canCreate = user?.privileges.includes("CREATE");
 
     const navigate = useNavigate();
 
     function onClick() {
 
-        dispatch(setSelectedProject(project))
+        dispatch(setSelectedProjectId(project.id))
 
         const projectId = project.id;
 
@@ -34,7 +33,7 @@ function Project({ project }: ProjectProps) {
 
     function goToTasks() {
 
-        dispatch(setSelectedProject(project))
+        dispatch(setSelectedProjectId(project.id))
 
         const projectId = project.id;
 

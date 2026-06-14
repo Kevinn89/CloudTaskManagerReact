@@ -1,8 +1,10 @@
 import { Link, useNavigate } from "react-router-dom";
-import { logoutUser } from "../services/AuthService";
+import { logoutUser as logoutUserRequest } from "../services/AuthService";
 import { useOrgs } from "../context/OrgContext";
 import { AppPaths } from "../routes/Route";
 import { useAppDispatch, useAppSelector } from "../store/hooks";
+import { logoutUser } from "../store/AuthSlice";
+import { persistor } from "../store/Store";
 
 
 export default function HomePage() {
@@ -13,19 +15,18 @@ export default function HomePage() {
 
   const dispatch = useAppDispatch();
 
-
   const { clearOrgs } = useOrgs();
-  const org_link = <Link to={AppPaths.organizations()}>organizations</Link>;
 
   async function onClick() {
 
-    const response = await logoutUser().catch(error => console.log(error));
+    const response = await logoutUserRequest().catch(error => console.log(error));
 
     console.log(response)
     clearOrgs();
 
-    dispatch(logoutUser);
-
+    dispatch(logoutUser());
+    await persistor.flush();
+    await persistor.purge();
 
     navigate(AppPaths.login())
   }
@@ -37,14 +38,11 @@ export default function HomePage() {
         <p>Hello {user?.email} track your projects, organize tasks, and keep cloud work moving.</p>
         <Link to={AppPaths.projects()}>projects</Link>
         {
-          user?.privileges.map(priv => priv === "CREATE") ? org_link : <></>
+          user?.privileges?.includes("CREATE") ? <Link to={AppPaths.organizations()}>organizations</Link> : <></>
         }
         <div> <button type="button" onClick={onClick}>Sign-out</button> </div>
       </section>
     </main>
   );
 }
-
-
-
 

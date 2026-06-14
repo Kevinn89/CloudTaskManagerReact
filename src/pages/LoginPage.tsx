@@ -39,14 +39,14 @@ function LoginPage() {
       });
 
       const user = authResponse;
+      if (user) {
 
-      console.log(user)
+        user.email = form.email;
+        dispatch(setUser(user))
+        navigate(AppPaths.home())
 
+      }
 
-      user.email = form.email;
-      dispatch(setUser(user))
-      // login(user);
-      navigate(AppPaths.home())
 
     }
     catch (errors) {

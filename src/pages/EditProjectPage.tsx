@@ -6,9 +6,9 @@ import { useNavigate, useParams } from "react-router-dom";
 
 import TaskList from '../components/task/TaskList';
 import { AppPaths } from '../routes/Route';
-import { getProjectTasks, type TaskResponse } from '../services/TaskService';
+import { type TaskResponse } from '../services/TaskService';
 import { useAppDispatch, useAppSelector } from '../store/hooks';
-import { removeProjectFromState, setProjects, setSelectedProject, updateProjectInState } from "../store/ProjectSlice";
+import { removeProjectFromState, setSelectedProjectId, updateProjectInState } from "../store/ProjectSlice";
 
 
 type ProjectForm = {
@@ -40,9 +40,7 @@ function EditProjectsPage() {
         return "No User"
 
 
-    const selectedProject = useAppSelector(state => state.project.selectedProject);
-
-    //  const { selectedProject, updateProjectInState, removeProjectFromState, setSelectedProject } = useProjects();
+    const projects = useAppSelector(state => state.project.projects);
 
     const [taskList, setTaskList] = useState<TaskResponse[]>([])
 
@@ -61,14 +59,13 @@ function EditProjectsPage() {
 
     useEffect(() => {
 
-        console.log(projectId)
         async function getMyProject() {
 
+            const routeId = Number(projectId);
 
-            const project =
-                selectedProject !== null && selectedProject.id === Number(projectId)
-                    ? selectedProject
-                    : await getProject(Number(projectId));
+            const projectFromStore = projects.find(pro => pro.id === routeId)
+
+            const project = projectFromStore ?? await getProject(routeId);
 
             const { id, name, description, taskCount, status, priority, createdAt, updatedAt, tasks } = project
 
@@ -84,25 +81,16 @@ function EditProjectsPage() {
                 tasks: tasks
             })
 
-            dispatch(setSelectedProject(project));
-        }
-        async function getMyTask() {
-            const list = await getProjectTasks(Number(projectId)).catch(error => console.log(error))
-            console.log(list)
-            if (!list)
-                return
-            setTaskList(list);
+            setTaskList(project.tasks);
+
+            dispatch(setSelectedProjectId(project.id));
         }
 
-        getMyTask();
         getMyProject();
 
-    }, [projectId, selectedProject])
+    }, [projectId])
 
     async function removeProject() {
-
-
-        //  console.log(id)
 
         await deleteProject(
             Number(projectId)
@@ -110,13 +98,10 @@ function EditProjectsPage() {
 
         dispatch(removeProjectFromState(Number(projectId)));
         navigate(AppPaths.projects())
-
     }
 
     async function onSubmit(event: React.FormEvent<HTMLFormElement>) {
         event.preventDefault();
-
-        console.log(form)
 
         const updatedProject = await updateProject({
             projectId: form.id,
@@ -125,8 +110,6 @@ function EditProjectsPage() {
             projectStatus: form.projectStatus,
             priorityStatus: form.priorityStatus
         }).catch(error => console.log(error))
-
-        console.log(updatedProject)
 
         if (!updatedProject) {
             throw new Error(`No Update for Project ${form.name}`)

@@ -17,14 +17,14 @@ import { createSlice, type PayloadAction } from "@reduxjs/toolkit";
 
 export type ProjectState = {
     projects: ProjectResponse[];
-    selectedProject: ProjectResponse | null;
+    selectedProjectId: number | null;
     hasLoadedProjects: boolean;
     selectedTask: TaskResponse | null;
 };
 
 const initialState: ProjectState = {
     projects: [],
-    selectedProject: null,
+    selectedProjectId: null,
     hasLoadedProjects: false,
     selectedTask: null
 };
@@ -235,50 +235,57 @@ const projectSlice = createSlice({
         setProjects(state, action: PayloadAction<ProjectResponse[]>) {
             state.projects = action.payload;
         },
-        setSelectedProject(state, action: PayloadAction<ProjectResponse>) {
-            state.selectedProject = action.payload
-
-            if (action.payload) {
-                localStorage.setItem("project_id", action.payload.id.toString())
-            }
+        setSelectedProjectId(state, action: PayloadAction<number | null>) {
+            state.selectedProjectId = action.payload
         },
         setHasLoadedProjects(state, action: PayloadAction<boolean>) {
             state.hasLoadedProjects = action.payload;
         },
-        setSelectedTask(state, action: PayloadAction<TaskResponse>) {
+        setSelectedTask(state, action: PayloadAction<TaskResponse | null>) {
 
             state.selectedTask = action.payload;
         },
         addProject(state, action: PayloadAction<ProjectResponse>) {
-            state.projects.push(action.payload);
+            const project = action.payload;
+            const existingProjectIndex = state.projects.findIndex(currentProject => currentProject.id === project.id);
+
+            if (existingProjectIndex >= 0) {
+                state.projects[existingProjectIndex] = project;
+                return;
+            }
+
+            state.projects.push(project);
         },
         updateProjectInState(state, action: PayloadAction<ProjectResponse>) {
 
             const updatedProject = action.payload;
 
-            state.projects = state.projects.map(project => project.id === updatedProject.id ? updatedProject : project);
+            const existingProject = state.projects.some(project => project.id === updatedProject.id);
 
-            if (state.selectedProject?.id === updatedProject.id) {
-                state.selectedProject = updatedProject
-            }
+            state.projects = existingProject
+                ? state.projects.map(project => project.id === updatedProject.id ? updatedProject : project)
+                : [...state.projects, updatedProject];
+
+            state.selectedProjectId = updatedProject.id;
 
         },
 
         removeProjectFromState(state, action: PayloadAction<number>) {
             const projectId = action.payload;
 
-            localStorage.removeItem("project_id");
+            state.projects = state.projects.filter(project => project.id !== projectId);
 
-            state.projects.map(project => project.id === projectId ? null : project);
+            if (state.selectedProjectId === projectId) {
+                state.selectedProjectId = null;
+            }
 
-            if (state.selectedProject?.id === projectId) {
-                state.selectedProject = null;
+            if (state.selectedTask?.projectId === projectId) {
+                state.selectedTask = null;
             }
         },
 
         clearProjects() {
-            localStorage.removeItem("project_id")
-            return initialState;
+            return { ...initialState };
         },
 
         addTaskToSelectedProject(state, action: PayloadAction<TaskResponse>) {
@@ -288,14 +295,11 @@ const projectSlice = createSlice({
                 pro.id === task.projectId ? {
                     ...pro,
                     taskCount: pro.taskCount + 1,
-                    task: [...pro.tasks, task]
+                    tasks: [...pro.tasks, task]
                 } : pro
             );
 
-            if (state.selectedProject?.id === task.projectId) {
-                state.selectedProject?.tasks.push(task);
-                state.selectedProject.taskCount += 1;
-            }
+            state.selectedProjectId = task.projectId
         },
 
         removeTaskFromSelectedProject(state, action: PayloadAction<TaskResponse>) {
@@ -303,15 +307,14 @@ const projectSlice = createSlice({
             const taskToRemove = action.payload;
 
             if (state.selectedTask?.id === taskToRemove.id) {
-                state.selectedProject = null
+                state.selectedTask = null
             }
 
-            state.projects.map(project =>
-                project.id === taskToRemove.id ? {
+            state.projects = state.projects.map(project =>
+                project.id === taskToRemove.projectId ? {
                     ...project,
-                    tasks: project.tasks.map(task =>
-                        task.id === taskToRemove.id ? null : task),
-                    taskCount: project.taskCount - 1
+                    tasks: project.tasks.filter(task => task.id !== taskToRemove.id),
+                    taskCount: Math.max(project.taskCount - 1, 0)
                 } : project
             )
         },
@@ -325,7 +328,7 @@ const projectSlice = createSlice({
             }
 
             state.projects = state.projects.map(project =>
-                project.id === task.id ? {
+                project.id === task.projectId ? {
                     ...project,
                     tasks: project.tasks.map(t => t.id === task.id ? task : t)
                 } : project
@@ -344,7 +347,7 @@ const projectSlice = createSlice({
 
 export const {
     setProjects,
-    setSelectedProject,
+    setSelectedProjectId,
     setHasLoadedProjects,
     setSelectedTask,
     addProject,

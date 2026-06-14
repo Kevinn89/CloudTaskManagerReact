@@ -4,16 +4,6 @@ type RetryableRequestConfig = InternalAxiosRequestConfig & {
     _retry?: boolean;
 };
 
-type UserResponse = {
-    id: number;
-    name: string;
-    email: string;
-    token: string;
-    tokenExpiration: string;
-    refreshToken: string;
-    refreshTokenExpiration: string;
-};
-
 export const apiClient = axios.create({
     baseURL: import.meta.env.VITE_API_BASE_URL,
     headers: {
@@ -38,23 +28,13 @@ apiClient.interceptors.response.use(
         if (isUnauthorized && hasNotRetried && !isAuthRoute) {
             originalRequest._retry = true;
 
-            const userJson = localStorage.getItem("user");
-            const user: UserResponse | null = userJson ? JSON.parse(userJson) : null
-
-            if (!user) {
-                localStorage.removeItem("user");
-                return Promise.reject(error)
-            }
-
             try {
 
-                const response = await apiClient.post("/api/auth/refresh").catch(error => console.log(error));
-                console.log(response);
+                await apiClient.post("/api/auth/refresh");
                 return apiClient(originalRequest);
 
             }
             catch (refreshError) {
-                localStorage.removeItem("user")
                 return Promise.reject(refreshError)
 
             }
@@ -63,4 +43,3 @@ apiClient.interceptors.response.use(
 
     }
 );
-

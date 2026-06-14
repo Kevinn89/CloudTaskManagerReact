@@ -18,6 +18,8 @@ function ProjectsPage() {
 
   useEffect(() => {
 
+    console.log("ProjectTasksPage mounted");
+
     async function loadProjects() {
       const proj = await getUserProjects();
 
@@ -30,18 +32,6 @@ function ProjectsPage() {
 
   }, [])
 
-  async function getProject() {
-
-
-    const proj = await getUserProjects();
-
-
-    console.log(proj)
-
-
-
-  }
-
   return (
     <main>
       <section>
@@ -50,10 +40,9 @@ function ProjectsPage() {
         <p>View and manage your active projects.</p>
         {
           canCreate ? <div>
-            <Link to="/create-project">Create Project</Link>
+            <Link to={AppPaths.createProject()}>Create Project</Link>
           </div> : <></>
         }
-        {/* <button type="button" onClick={getProject} >test projects</button> */}
         <ProjectList projects={projects} />
       </section>
     </main>
@@ -61,6 +50,5 @@ function ProjectsPage() {
 }
 
 export default ProjectsPage;
-
 
 

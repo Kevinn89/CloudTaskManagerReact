@@ -9,6 +9,7 @@ function CreateOrganizationPage() {
     const navigate = useNavigate();
 
     const { addOrg } = useOrgs();
+
     const [form, setForm] = useState({
         id: 0,
         name: "",
@@ -27,9 +28,6 @@ function CreateOrganizationPage() {
     async function onSubmit(event: React.SyntheticEvent<HTMLFormElement>) {
 
         event.preventDefault();
-
-        console.log("creating.........")
-
 
         try {
 
