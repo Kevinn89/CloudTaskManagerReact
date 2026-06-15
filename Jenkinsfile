@@ -7,7 +7,7 @@ pipeline {
     }
 
     environment {
-        DOCKER_REGISTRY = 'localhost:5002'
+        DOCKER_REGISTRY = 'registry: 5001'
         DOCKER_IMAGE = 'cloud-task-manager-react'
         VITE_API_BASE_URL = 'http://localhost:8081'
     }
