@@ -7,7 +7,7 @@ pipeline {
     }
 
     environment {
-        DOCKER_REGISTRY = 'registry: 5001'
+        DOCKER_REGISTRY = 'registry:5001'
         DOCKER_IMAGE = 'cloud-task-manager-react'
         VITE_API_BASE_URL = 'http://localhost:8081'
     }
@@ -29,17 +29,6 @@ pipeline {
                 '''
             }
         }
-
-        stage('Verify Project Files') {
-            steps {
-                sh '''
-                    test -f package.json
-                    test -f package-lock.json
-                    test -f Dockerfile
-                '''
-            }
-        }
-
         stage('Install Dependencies') {
             steps {
                 sh '''
