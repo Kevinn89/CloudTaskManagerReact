@@ -61,15 +61,6 @@ pipeline {
                 '''
             }
         }
-
-        stage('React Build') {
-            steps {
-                sh '''
-                    npm run build
-                '''
-            }
-        }
-
         stage('Publish Docker Image') {
             steps {
                 sh '''
