@@ -10,68 +10,77 @@ pipeline {
         DOCKER_REGISTRY = 'localhost:5002'
         DOCKER_IMAGE = 'cloud-task-manager-react'
         VITE_API_BASE_URL = 'http://localhost:8081'
+        NODE_IMAGE = 'node:22-alpine'
     }
 
     stages {
-        stage('Checkout') {
-            steps {
-                checkout scm
-            }
-        }
-
-        stage('Validate Docker') {
+        stage('Verify Project Files') {
             steps {
                 sh '''
-                    docker version
-                    docker info
-                '''
-            }
-        }
-            stage('NPM Install') {
-            steps {
-                sh '''
-                    docker run --rm \
-                    -v "$PWD":/app \
-                    -w /app \
-                    node:22-alpine \
-                    sh -c "node --version && npm --version && npm ci"
-                '''
-            }
-        }
-        stage('Unit and Integration Tests') {
-            steps {
-                sh '''
-                    docker run --rm \
-                    -v "$PWD":/app \
-                    -w /app \
-                    node:22-alpine \
-                    sh -c "npm test -- --run"
+                    test -f package.json
+                    test -f package-lock.json
+                    test -f Dockerfile
                 '''
             }
         }
 
-        stage('React Build') {
+        stage('Install Dependencies') {
             steps {
                 sh '''
                     docker run --rm \
-                    -v "$PWD":/app \
-                    -w /app \
-                    node:22-alpine \
-                    sh -c "npm run build"
+                      -v "$PWD":/app \
+                      -w /app \
+                      "${NODE_IMAGE}" \
+                      sh -c "node --version && npm --version && npm ci"
                 '''
             }
         }
-        stage('Publish Docker Image') {
+
+        stage('Run Tests') {
+            steps {
+                sh '''
+                    docker run --rm \
+                      -v "$PWD":/app \
+                      -w /app \
+                      "${NODE_IMAGE}" \
+                      sh -c "npm test -- --run"
+                '''
+            }
+        }
+
+        stage('Build React App') {
+            steps {
+                sh '''
+                    docker run --rm \
+                      -v "$PWD":/app \
+                      -w /app \
+                      -e VITE_API_BASE_URL="${VITE_API_BASE_URL}" \
+                      "${NODE_IMAGE}" \
+                      sh -c "npm run build"
+                '''
+            }
+        }
+
+        stage('Build Docker Image') {
             steps {
                 sh '''
                     IMAGE_TAG="${DOCKER_REGISTRY}/${DOCKER_IMAGE}:${BUILD_NUMBER}"
                     LATEST_TAG="${DOCKER_REGISTRY}/${DOCKER_IMAGE}:latest"
 
                     docker build \
-                        --build-arg VITE_API_BASE_URL="${VITE_API_BASE_URL}" \
-                        -t "${IMAGE_TAG}" \
-                        -t "${LATEST_TAG}" \
-                        .
+                      --build-arg VITE_API_BASE_URL="${VITE_API_BASE_URL}" \
+                      -t "${IMAGE_TAG}" \
+                      -t "${LATEST_TAG}" \
+                      .
+                '''
+            }
+        }
+
+        stage('Push Docker Image') {
+            steps {
+                sh '''
+                    IMAGE_TAG="${DOCKER_REGISTRY}/${DOCKER_IMAGE}:${BUILD_NUMBER}"
+                    LATEST_TAG="${DOCKER_REGISTRY}/${DOCKER_IMAGE}:latest"
 
                     docker push "${IMAGE_TAG}"
                     docker push "${LATEST_TAG}"
@@ -98,6 +107,12 @@ pipeline {
 
         failure {
             echo 'React CI pipeline failed.'
+        }
+
+        always {
+            sh '''
+                docker image prune -f || true
+            '''
         }
     }
 }
