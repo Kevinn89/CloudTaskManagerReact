@@ -1,0 +1,9 @@
+ansicolor
+blueocean
+configuration-as-code
+credentials-binding
+docker-workflow
+git
+junit
+pipeline-stage-view
+workflow-aggregator

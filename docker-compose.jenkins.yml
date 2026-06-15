@@ -1,0 +1,59 @@
+services:
+  jenkins:
+    build:
+      context: ./jenkins
+      dockerfile: Dockerfile
+    container_name: cloud-task-manager-jenkins-react
+    restart: unless-stopped
+    privileged: true
+    user: root
+    ports:
+      - "8083:8080"
+      - "50001:50000"
+    volumes:
+      - jenkins_home:/var/jenkins_home
+      - /var/run/docker.sock:/var/run/docker.sock
+      - .:/workspace/cloud-task-manager-react
+    environment:
+      JAVA_OPTS: "-Djenkins.install.runSetupWizard=false"
+      DOCKER_REGISTRY: "localhost:5002"
+      VITE_API_BASE_URL: "${VITE_API_BASE_URL:-http://localhost:8081}"
+    depends_on:
+      - registry
+
+  registry:
+    image: registry:2
+    container_name: cloud-task-manager-registry-react
+    restart: unless-stopped
+    ports:
+      - "5002:5000"
+    volumes:
+      - registry_data:/var/lib/registry
+
+  app-testing:
+    image: localhost:5002/cloud-task-manager-react:latest
+    container_name: cloud-task-manager-react-testing
+    profiles:
+      - testing
+    pull_policy: always
+    restart: unless-stopped
+    depends_on:
+      - registry
+    ports:
+      - "3000:80"
+
+  app-qa-cert:
+    image: localhost:5002/cloud-task-manager-react:latest
+    container_name: cloud-task-manager-react-qa-cert
+    profiles:
+      - qa-cert
+    pull_policy: always
+    restart: unless-stopped
+    depends_on:
+      - registry
+    ports:
+      - "3001:80"
+
+volumes:
+  jenkins_home:
+  registry_data:
