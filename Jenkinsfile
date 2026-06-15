@@ -27,21 +27,37 @@ pipeline {
                 '''
             }
         }
-
-        stage('NPM Install') {
+            stage('NPM Install') {
             steps {
                 sh '''
-                    node --version
-                    npm --version
-                    npm ci
+                    docker run --rm \
+                    -v "$PWD":/app \
+                    -w /app \
+                    node:22-alpine \
+                    sh -c "node --version && npm --version && npm ci"
+                '''
+            }
+        }
+        stage('Unit and Integration Tests') {
+            steps {
+                sh '''
+                    docker run --rm \
+                    -v "$PWD":/app \
+                    -w /app \
+                    node:22-alpine \
+                    sh -c "npm test -- --run"
                 '''
             }
         }
 
-        stage('Unit and Integration Tests') {
+        stage('React Build') {
             steps {
                 sh '''
-                    npm test -- --run
+                    docker run --rm \
+                    -v "$PWD":/app \
+                    -w /app \
+                    node:22-alpine \
+                    sh -c "npm run build"
                 '''
             }
         }
