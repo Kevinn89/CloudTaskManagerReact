@@ -10,10 +10,26 @@ pipeline {
         DOCKER_REGISTRY = 'localhost:5002'
         DOCKER_IMAGE = 'cloud-task-manager-react'
         VITE_API_BASE_URL = 'http://localhost:8081'
-        NODE_IMAGE = 'node:22-alpine'
     }
 
     stages {
+        stage('Checkout') {
+            steps {
+                checkout scm
+            }
+        }
+
+        stage('Validate Tooling') {
+            steps {
+                sh '''
+                    node --version
+                    npm --version
+                    docker version
+                    docker info
+                '''
+            }
+        }
+
         stage('Verify Project Files') {
             steps {
                 sh '''
@@ -27,11 +43,7 @@ pipeline {
         stage('Install Dependencies') {
             steps {
                 sh '''
-                    docker run --rm \
-                      -v "$PWD":/app \
-                      -w /app \
-                      "${NODE_IMAGE}" \
-                      sh -c "node --version && npm --version && npm ci"
+                    npm ci
                 '''
             }
         }
@@ -39,11 +51,7 @@ pipeline {
         stage('Run Tests') {
             steps {
                 sh '''
-                    docker run --rm \
-                      -v "$PWD":/app \
-                      -w /app \
-                      "${NODE_IMAGE}" \
-                      sh -c "npm test -- --run"
+                    npm test -- --run
                 '''
             }
         }
@@ -51,12 +59,7 @@ pipeline {
         stage('Build React App') {
             steps {
                 sh '''
-                    docker run --rm \
-                      -v "$PWD":/app \
-                      -w /app \
-                      -e VITE_API_BASE_URL="${VITE_API_BASE_URL}" \
-                      "${NODE_IMAGE}" \
-                      sh -c "npm run build"
+                    npm run build
                 '''
             }
         }
